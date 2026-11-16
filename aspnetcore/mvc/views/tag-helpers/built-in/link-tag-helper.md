@@ -30,7 +30,7 @@ See [Link Tag Helper](xref:Microsoft.AspNetCore.Mvc.TagHelpers.LinkTagHelper)  f
 
 ### href
 
-Preferred address of the linked resource. The address is passed thought to the generated HTML in all cases.
+Preferred address of the linked resource. The address is passed through to the generated HTML in all cases.
 
 ### asp-fallback-href
 
@@ -47,6 +47,28 @@ The CSS property name to use for the fallback test. For more information, see <x
 ### asp-fallback-test-value
 
 The CSS property value to use for the fallback test. For more information, see <xref:Microsoft.AspNetCore.Mvc.TagHelpers.LinkTagHelper.FallbackTestValue>.
+
+### asp-fallback-href-exclude
+
+A comma-separated list of globbed file patterns of CSS stylesheets to exclude from the fallback list, in the case the primary one fails. The glob patterns are assessed relative to the application's `webroot` setting. Must be used in conjunction with `asp-fallback-href-include`.
+
+### asp-fallback-href-include
+
+A comma-separated list of globbed file patterns of CSS stylesheets to fallback to in the case the primary one fails. The glob patterns are assessed relative to the application's `webroot` setting.
+
+### asp-href-exclude
+
+A comma-separated list of globbed file patterns of CSS stylesheets to exclude from loading. The glob patterns are assessed relative to the application's `webroot` setting. Must be used in conjunction with `asp-href-include`.
+
+### asp-href-include
+
+A comma-separated list of globbed file patterns of CSS stylesheets to load. The glob patterns are assessed relative to the application's `webroot` setting.
+
+### asp-suppress-fallback-integrity
+
+Boolean value that determines if an integrity hash will be compared with the `asp-fallback-href` value.
+
+When Subresource Integrity (SRI) attributes (`integrity` and `crossorigin`) are used on a `<link>` tag with a CDN stylesheet, the browser verifies the hash of the downloaded stylesheet. If the primary CDN stylesheet fails to load and fallback kicks in, the tag helper by default applies the same `integrity` attribute to the fallback stylesheet. If the fallback stylesheet does not match the integrity hash (for example, if a local unminified stylesheet is used as fallback for a minified CDN stylesheet), set `asp-suppress-fallback-integrity="true"` to suppress the integrity check on the fallback resource.
 
 ## Related content
 
