@@ -531,6 +531,13 @@ The following example demonstrates an interactive child component that takes a p
 <SharedMessage @rendermode="InteractiveServer" Greeting="Welcome!" />
 ```
 
+:::moniker range=">= aspnetcore-11.0"
+
+Starting in .NET 11, passing a <xref:Microsoft.AspNetCore.Components.RenderFragment> (such as child content) from a statically rendered parent component or layout to an interactive child component is supported. When a component with an interactive render mode receives a <xref:Microsoft.AspNetCore.Components.RenderFragment> parameter, the framework captures the output rendered by the fragment during static SSR, serializes the resulting render tree to JSON, and reconstructs the fragment on the interactive client side. Any child components rendered within the fragment must also have serializable parameters.
+
+:::moniker-end
+:::moniker range="< aspnetcore-11.0"
+
 Non-serializable component parameters, such as child content or a render fragment, aren't supported. In the following example, passing child content to the `SharedMessage` component results in a runtime error.
 
 `RenderMode9.razor`:
@@ -547,15 +554,7 @@ Non-serializable component parameters, such as child content or a render fragmen
 
 > :::no-loc text="System.InvalidOperationException: Cannot pass the parameter 'ChildContent' to component 'SharedMessage' with rendermode 'InteractiveServerRenderMode'. This is because the parameter is of the delegate type 'Microsoft.AspNetCore.Components.RenderFragment', which is arbitrary code and cannot be serialized.":::
 
-:::moniker range="< aspnetcore-11.0"
-
-<!-- UPDATE 11.0 - This is resolved in .NET 11 or later via 
-                   https://github.com/dotnet/aspnetcore/issues/52768.
-                   Determine if more work is needed here. -->
-
 The same thing happens if you attempt to adopt interactive rendering in a layout that inherits from <xref:Microsoft.AspNetCore.Components.LayoutComponentBase>, such as the app's `MainLayout` component, in an app that adopts per-page/component rendering. For more information, see [ASP.NET Core Blazor layouts](layouts.md#statically-rendered-layout-components).
-
-:::moniker-end
 
 To circumvent the preceding limitation, wrap the child component in another component that doesn't have the parameter. This is the approach taken in the Blazor Web App project template with the `Routes` component (`Components/Routes.razor`) to wrap the <xref:Microsoft.AspNetCore.Components.Routing.Router> component.
 
@@ -579,6 +578,8 @@ In the preceding example:
 
 * The child content is passed to the `SharedMessage` component without generating a runtime error.
 * The `SharedMessage` component renders interactively on the server.
+
+:::moniker-end
 
 ### Child component with a different render mode than its parent
 
