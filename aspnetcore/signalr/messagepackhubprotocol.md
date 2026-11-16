@@ -28,14 +28,39 @@ services.AddSignalR()
 > [!NOTE]
 > JSON is enabled by default. Adding MessagePack enables support for both JSON and MessagePack clients.
 
-To customize how MessagePack formats data, `AddMessagePackProtocol` takes a delegate for configuring options. In that delegate, the `SerializerOptions` property is used to configure MessagePack serialization options. For more information on how the resolvers work, visit the MessagePack library at [MessagePack-CSharp](https://github.com/neuecc/MessagePack-CSharp). Attributes can be used on the objects you want to serialize to define how they should be handled.
+To customize how MessagePack formats data, `AddMessagePackProtocol` takes a delegate for configuring options. In that delegate, the `SerializerOptions` property is used to configure MessagePack serialization options. Resolvers are provided by the [MessagePack-CSharp](https://github.com/MessagePack-CSharp/MessagePack-CSharp) library (such as `StandardResolver` or `ContractlessStandardResolver`) and control how types are serialized. Attributes can also be used on the objects you want to serialize to define how they should be handled.
+
+The following example configures MessagePack using a built-in resolver:
 
 ```csharp
+using MessagePack;
+using MessagePack.Resolvers;
+
 services.AddSignalR()
     .AddMessagePackProtocol(options =>
     {
         options.SerializerOptions = MessagePackSerializerOptions.Standard
-            .WithResolver(new CustomResolver())
+            .WithResolver(StandardResolver.Instance)
+            .WithSecurity(MessagePackSecurity.UntrustedData);
+    });
+```
+
+To configure custom resolvers or custom formatters, compose them using `CompositeResolver.Create`:
+
+```csharp
+using MessagePack;
+using MessagePack.Resolvers;
+
+var customResolver = CompositeResolver.Create(
+    // Custom formatters or resolvers precede fallback resolvers
+    StandardResolver.Instance
+);
+
+services.AddSignalR()
+    .AddMessagePackProtocol(options =>
+    {
+        options.SerializerOptions = MessagePackSerializerOptions.Standard
+            .WithResolver(customResolver)
             .WithSecurity(MessagePackSecurity.UntrustedData);
     });
 ```
