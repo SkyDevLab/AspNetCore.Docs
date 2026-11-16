@@ -36,12 +36,26 @@ Validation is automatic, but you might want to repeat it manually. For example, 
 
 :::code language="csharp" source="~/mvc/models/validation/samples/6.x/ValidationSample/Pages/Movies/Create.cshtml.cs" id="snippet_TryValidate" highlight="6-10":::
 
-You can also use <xref:Microsoft.AspNetCore.Mvc.ControllerBase.TryValidateModel*> to explicitly validate a child complex object. `TryValidateModel` validates the supplied object and attributes declared on its own properties; it does not evaluate validation attributes declared on the containing parent property (such as attributes on the parent `Movie.Genre` property itself). For example, consider a hypothetical complex `Genre` class (distinct from the sample app's `Genre` enum) with its own validation attributes. In a page model where the `Movie` property is bound under the `"Movie"` prefix, manually validate `Movie.Genre` using the full property prefix:
+You can also use <xref:Microsoft.AspNetCore.Mvc.ControllerBase.TryValidateModel*> to explicitly validate a child complex object. `TryValidateModel` validates the supplied object and attributes declared on its own properties; it does not evaluate validation attributes declared on the containing parent property (such as attributes on the parent `Movie.Genre` property itself).
+
+For example, consider a hypothetical complex `Genre` class (distinct from the sample app's `Genre` enum) with its own validation attributes. If the model is bound without a prefix (for example, in a controller action parameter or by applying `[BindProperty(Name = "")]` on the page model property), the `ModelState` key matches the property name directly, allowing the use of `nameof`:
 
 ```csharp
-ModelState.ClearValidationState("Movie.Genre");
+ModelState.ClearValidationState(nameof(Movie.Genre));
 
-if (!TryValidateModel(Movie.Genre, "Movie.Genre"))
+if (!TryValidateModel(Movie.Genre, nameof(Movie.Genre)))
+{
+    return Page();
+}
+```
+
+In a page model where the `Movie` property is bound with the default `"Movie"` prefix, `nameof(Movie.Genre)` evaluates to `"Genre"` rather than `"Movie.Genre"`. In that case, manually validate `Movie.Genre` using the full property prefix string or compose it using `nameof` expressions to avoid magic strings:
+
+```csharp
+var key = $"{nameof(Movie)}.{nameof(Movie.Genre)}";
+ModelState.ClearValidationState(key);
+
+if (!TryValidateModel(Movie.Genre, key))
 {
     return Page();
 }
